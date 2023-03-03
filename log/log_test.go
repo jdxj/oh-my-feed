@@ -2,23 +2,23 @@ package log
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
-	"gopkg.in/natefinch/lumberjack.v2"
+	"github.com/jdxj/oh-my-feed/config"
 )
 
 func TestMain(t *testing.M) {
-	writer := &lumberjack.Logger{
-		Filename:   "tmp.log",
-		MaxSize:    10,
-		MaxAge:     30,
-		MaxBackups: 30,
-		LocalTime:  true,
-		Compress:   false,
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(err)
 	}
-	Init(writer)
+	configPath := filepath.Join(wd, "../config/config.yaml")
+	config.Init(configPath)
+	Init()
 	os.Exit(t.Run())
 }
 
 func TestLog(t *testing.T) {
+	Debugf("%s", "abc")
 }
