@@ -15,6 +15,6 @@
 # vendor/
 
 .idea/
-*.log
 keys_test.go
 config.yaml
+logs/
