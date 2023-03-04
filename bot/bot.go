@@ -33,7 +33,7 @@ func Init() {
 
 func startWebhook() {
 	server = &http.Server{
-		Addr:                         "localhost:8080",
+		Addr:                         "0.0.0.0:8080",
 		Handler:                      http.DefaultServeMux,
 		DisableGeneralOptionsHandler: false,
 		TLSConfig:                    nil,
