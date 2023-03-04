@@ -33,6 +33,7 @@ func (hdl *myEventHandler) OnRow(e *canal.RowsEvent) error {
 		return nil
 	}
 
+	oldRow := e.Rows[0]
 	newRow := e.Rows[1]
 	if len(newRow) < 7 {
 		log.Errorf("table struct changed")
@@ -42,6 +43,11 @@ func (hdl *myEventHandler) OnRow(e *canal.RowsEvent) error {
 	id, ok := newRow[0].(uint64)
 	if !ok {
 		log.Errorf("column type changed: id")
+		return nil
+	}
+
+	if oldRow[6] == newRow[6] {
+		// 不是latest_post发生变化
 		return nil
 	}
 

@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  oh-my-feed:
+    image: jdxj/oh-my-feed:test-f4d12b7
+    command: [ /oh-my-feed/feed.out, -config, /oh-my-feed/conf/config.yaml ]
+    restart: unless-stopped
+    networks:
+      my_net:
+        ipv4_address: 172.18.0.22
+    volumes:
+      - type: bind
+        source: $FEED_CONF_PATH
+        target: /oh-my-feed/conf
+        read_only: true

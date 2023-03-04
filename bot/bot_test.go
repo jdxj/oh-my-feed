@@ -44,3 +44,9 @@ func TestStartCanal(t *testing.T) {
 
 	Stop()
 }
+
+func TestAnyEqual(t *testing.T) {
+	var i1 any = "abc"
+	var i2 any = "abc2"
+	fmt.Printf("%t\n", i1 == i2)
+}

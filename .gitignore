@@ -18,3 +18,5 @@
 keys_test.go
 config.yaml
 logs/
+
+docker/.env
