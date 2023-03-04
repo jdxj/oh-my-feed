@@ -21,7 +21,7 @@ func TestMain(t *testing.M) {
 }
 
 func TestAddFeed(t *testing.T) {
-	_, err := AddFeed(db, "https://example.com")
+	_, err := AddFeed(db, "")
 	if err != nil {
 		t.Fatalf("ii: %s\n", err)
 	}
@@ -61,4 +61,21 @@ func TestGoFeed(t *testing.T) {
 		t.Fatalf("%s\n", err)
 	}
 	fmt.Printf("%+v\n", feed)
+}
+
+func TestGetFeeds(t *testing.T) {
+	feeds, err := GetFeeds(context.Background())
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+	for _, v := range feeds {
+		fmt.Println(v.Address)
+	}
+}
+
+func TestUpdateFeedTitle(t *testing.T) {
+	err := UpdateFeedTitle(context.Background(), 16, "kk")
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
 }

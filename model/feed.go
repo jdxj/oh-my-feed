@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"strings"
@@ -44,4 +45,18 @@ func GetFeed(tx *gorm.DB, id uint64) (Feed, error) {
 		},
 	}
 	return feed, tx.Take(&feed).Error
+}
+
+func GetFeeds(ctx context.Context) ([]Feed, error) {
+	var feeds []Feed
+	return feeds, db.WithContext(ctx).
+		Find(&feeds).Error
+}
+
+func UpdateFeedTitle(ctx context.Context, id uint, title string) error {
+	return db.WithContext(ctx).Model(Feed{}).
+		Where("id = ?", id).
+		Where("title != ?", title).
+		Update("title", title).
+		Error
 }

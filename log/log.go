@@ -1,6 +1,7 @@
 package log
 
 import (
+	"os"
 	"time"
 
 	"go.uber.org/zap"
@@ -24,6 +25,10 @@ func Init() {
 		MaxAge:    config.Logger.MaxAge,
 		LocalTime: true,
 	})
+	if config.Logger.Filename == "" {
+		syncer = zapcore.AddSync(os.Stdout)
+	}
+
 	levelEnabler := zap.LevelEnablerFunc(func(level zapcore.Level) bool { return level >= zapcore.Level(config.Logger.Level) })
 	core := zapcore.NewCore(encoder, syncer, levelEnabler)
 

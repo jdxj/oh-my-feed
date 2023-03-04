@@ -209,7 +209,7 @@ func newAddFeedCmd() *command {
 				log.Desugar().Error(
 					"add-feed",
 					zap.String("feed", args[0]),
-					zap.String("err", err.Error()),
+					zap.Error(err),
 				)
 				msg.Text = "添加订阅地址失败"
 			} else {
