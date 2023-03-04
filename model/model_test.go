@@ -43,11 +43,7 @@ func TestAddUserFeed(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	rsp, err := ListUserFeed(context.Background(), ListUserFeedReq{
-		TelegramID: 123,
-		Offset:     0,
-		Limit:      0,
-	})
+	rsp, err := ListUserFeed(context.Background(), ListUserFeedReq{})
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}
@@ -73,8 +69,8 @@ func TestGetFeeds(t *testing.T) {
 	}
 }
 
-func TestUpdateFeedTitle(t *testing.T) {
-	err := UpdateFeedTitle(context.Background(), 16, "kk")
+func TestUpdateLatestPost(t *testing.T) {
+	err := UpdateLatestPost(context.Background(), 16, "kk")
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}

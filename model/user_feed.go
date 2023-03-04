@@ -36,6 +36,7 @@ func AddUserFeed(ctx context.Context, telegramID int64, address string) error {
 
 type ListUserFeedReq struct {
 	TelegramID int64
+	FeedID     uint64
 
 	Offset int
 	Limit  int
@@ -47,8 +48,13 @@ type ListUserFeedRsp struct {
 }
 
 func ListUserFeed(ctx context.Context, req ListUserFeedReq) (ListUserFeedRsp, error) {
-	tx := db.WithContext(ctx).Model(UserFeed{}).
-		Where("telegram_id = ?", req.TelegramID)
+	tx := db.WithContext(ctx).Model(UserFeed{})
+	if v := req.FeedID; v != 0 {
+		tx.Where("feed_id = ?", req.FeedID)
+	}
+	if v := req.TelegramID; v != 0 {
+		tx.Where("telegram_id = ?", req.TelegramID)
+	}
 
 	rsp := ListUserFeedRsp{}
 	err := tx.Count(&rsp.Count).Error

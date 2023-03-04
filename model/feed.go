@@ -16,6 +16,7 @@ type Feed struct {
 
 	Address    string
 	AddressMD5 string
+	LatestPost string
 }
 
 func AddFeed(tx *gorm.DB, address string) (uint64, error) {
@@ -53,10 +54,10 @@ func GetFeeds(ctx context.Context) ([]Feed, error) {
 		Find(&feeds).Error
 }
 
-func UpdateFeedTitle(ctx context.Context, id uint, title string) error {
+func UpdateLatestPost(ctx context.Context, id uint, url string) error {
 	return db.WithContext(ctx).Model(Feed{}).
 		Where("id = ?", id).
-		Where("title != ?", title).
-		Update("title", title).
+		Where("latest_post != ?", url).
+		Update("latest_post", url).
 		Error
 }

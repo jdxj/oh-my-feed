@@ -76,7 +76,7 @@ func updateFeedTitle() {
 		}
 
 		// todo: 协程池
-		latestTitle, err := getFeedLatestTitle(ctx, feed.Address)
+		latestTitle, err := getLatestPost(ctx, feed.Address)
 		if err != nil {
 			log.Desugar().Warn(
 				"feed-latest-title",
@@ -86,7 +86,7 @@ func updateFeedTitle() {
 			continue
 		}
 
-		err = model.UpdateFeedTitle(ctx, feed.ID, latestTitle)
+		err = model.UpdateLatestPost(ctx, feed.ID, latestTitle)
 		if err != nil {
 			log.Desugar().Warn(
 				"update-feed-title",
@@ -101,7 +101,7 @@ var (
 	ErrFeedItemNotFound = errors.New("feed item not found")
 )
 
-func getFeedLatestTitle(ctx context.Context, address string) (string, error) {
+func getLatestPost(ctx context.Context, address string) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, parseTimeout)
 	defer cancel()
 
@@ -113,5 +113,5 @@ func getFeedLatestTitle(ctx context.Context, address string) (string, error) {
 		return "", ErrFeedItemNotFound
 	}
 
-	return feed.Items[0].Title, nil
+	return feed.Items[0].Link, nil
 }

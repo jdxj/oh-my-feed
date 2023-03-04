@@ -5,6 +5,11 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/jdxj/oh-my-feed/config"
+	"github.com/jdxj/oh-my-feed/log"
+	"github.com/jdxj/oh-my-feed/model"
 )
 
 func TestChan(t *testing.T) {
@@ -27,4 +32,15 @@ func TestFlag(t *testing.T) {
 	ss := strings.Split(s, " ")
 	fmt.Printf("%v\n", ss)
 	fmt.Printf("%d\n", len(ss))
+}
+
+func TestStartCanal(t *testing.T) {
+	config.Init("../config/config.yaml")
+	log.Init()
+	model.Init()
+	Init()
+
+	time.Sleep(time.Hour)
+
+	Stop()
 }

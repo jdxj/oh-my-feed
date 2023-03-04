@@ -10,6 +10,7 @@ import (
 	"github.com/jdxj/oh-my-feed/config"
 	"github.com/jdxj/oh-my-feed/log"
 	"github.com/jdxj/oh-my-feed/model"
+	"github.com/jdxj/oh-my-feed/task"
 )
 
 var (
@@ -21,18 +22,17 @@ func main() {
 
 	config.Init(*configPath)
 	log.Init()
-	bot.Init()
 	model.Init()
-
+	task.Init()
+	bot.Init()
 	log.Infof("started")
 
 	signs := make(chan os.Signal, 1)
-
 	signal.Notify(signs, syscall.SIGINT, syscall.SIGTERM)
 	<-signs
 
-	bot.Stop()
-
 	log.Infof("stopped")
+	bot.Stop()
+	task.Stop()
 	log.Sync()
 }

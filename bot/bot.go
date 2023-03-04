@@ -26,6 +26,12 @@ func Init() {
 		log.Fatalf("new bot api err: %s", err)
 	}
 
+	registerCmd()
+	startWebhook()
+	startCanal()
+}
+
+func startWebhook() {
 	server = &http.Server{
 		Addr:                         "localhost:8080",
 		Handler:                      http.DefaultServeMux,
@@ -43,11 +49,6 @@ func Init() {
 		ConnContext:                  nil,
 	}
 
-	registerCmd()
-	start()
-}
-
-func start() {
 	// 注册webhook
 	webhookPath := "/" + config.Telegram.Token
 	webhook := strings.TrimSuffix(config.Telegram.Webhook, "/") + webhookPath
@@ -102,4 +103,6 @@ func Stop() {
 	if err != nil {
 		log.Errorf("stop bot err: %s", err)
 	}
+
+	myCanal.Close()
 }
