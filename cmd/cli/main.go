@@ -1,35 +1,38 @@
 package main
 
 import (
-	"crypto/md5"
-	"encoding/base64"
-	"encoding/hex"
-	"fmt"
-	"log"
-	"time"
+	"flag"
+	"os"
+	"os/signal"
+	"syscall"
 
-	"golang.org/x/crypto/bcrypt"
+	"github.com/jdxj/oh-my-feed/bot"
+	"github.com/jdxj/oh-my-feed/config"
+	"github.com/jdxj/oh-my-feed/log"
+	"github.com/jdxj/oh-my-feed/model"
+)
+
+var (
+	configPath = flag.String("config", "config.yaml", "config path")
 )
 
 func main() {
-	t := time.Time{}
-	fmt.Println(t.Format(time.DateTime))
-	h := md5.New()
-	h.Write([]byte("hello"))
-	res := h.Sum(nil)
-	ss := hex.EncodeToString(res)
-	fmt.Printf("%s\n", ss)
-	ss = base64.StdEncoding.EncodeToString(res)
-	fmt.Printf("%s\n", ss)
-	res, err := bcrypt.GenerateFromPassword([]byte("abc"), bcrypt.DefaultCost)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Printf("%s, %d\n", res, len(res))
+	flag.Parse()
 
-	res, err = bcrypt.GenerateFromPassword([]byte("88**$/abc"), bcrypt.DefaultCost)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Printf("%s, %d\n", res, len(res))
+	config.Init(*configPath)
+	log.Init()
+	bot.Init()
+	model.Init()
+
+	log.Infof("started")
+
+	signs := make(chan os.Signal, 1)
+
+	signal.Notify(signs, syscall.SIGINT, syscall.SIGTERM)
+	<-signs
+
+	bot.Stop()
+
+	log.Infof("stopped")
+	log.Sync()
 }

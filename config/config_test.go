@@ -14,3 +14,6 @@ func TestMain(t *testing.M) {
 func TestInit(t *testing.T) {
 	fmt.Printf("%+v\n%+v\n%+v\n", DB, Telegram, Logger)
 }
+
+func TestPathJoin(t *testing.T) {
+}

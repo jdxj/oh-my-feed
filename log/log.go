@@ -30,6 +30,10 @@ func Init() {
 	sugar = zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1)).Sugar()
 }
 
+func Desugar() *zap.Logger {
+	return sugar.Desugar()
+}
+
 func Debugf(template string, args ...any) {
 	sugar.Debugf(template, args...)
 }
@@ -44,4 +48,12 @@ func Warnf(template string, args ...any) {
 
 func Errorf(template string, args ...any) {
 	sugar.Errorf(template, args...)
+}
+
+func Fatalf(template string, args ...any) {
+	sugar.Fatalf(template, args...)
+}
+
+func Sync() {
+	sugar.Sync()
 }
