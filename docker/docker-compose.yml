@@ -13,3 +13,7 @@ services:
         source: $FEED_CONF_PATH
         target: /oh-my-feed/conf
         read_only: true
+      - type: bind
+        source: $FEED_LOGS_PATH
+        target: /oh-my-feed/logs
+        read_only: false
