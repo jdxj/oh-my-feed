@@ -17,6 +17,6 @@
 .idea/
 keys_test.go
 config.yaml
-logs/
+*.log
 
 docker/.env
