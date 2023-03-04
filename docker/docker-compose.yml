@@ -1,12 +1,16 @@
 version: "3.9"
 
+networks:
+  study-docker-compose_my_net:
+    external: true
+
 services:
   oh-my-feed:
-    image: jdxj/oh-my-feed:test-f4d12b7
+    image: jdxj/oh-my-feed:test-3c4767c
     command: [ /oh-my-feed/feed.out, -config, /oh-my-feed/conf/config.yaml ]
     restart: unless-stopped
     networks:
-      my_net:
+      study-docker-compose_my_net:
         ipv4_address: 172.18.0.22
     volumes:
       - type: bind
