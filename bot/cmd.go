@@ -80,11 +80,20 @@ func registerCmd() {
 	}
 }
 
-// todo: 优雅退出
 func handlers(updates tbi.UpdatesChannel) {
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
+
 		// todo: update并发测试
 		for update := range updates {
+			select {
+			case <-stop:
+				log.Infof("stop handle update")
+				return
+			default:
+			}
+
 			if update.Message != nil {
 				txt := update.Message.Text
 				cli, err := parseCmdLine(txt)

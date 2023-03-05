@@ -86,7 +86,10 @@ func startCanal() {
 		log.Fatalf("get master pos err: %s", err)
 	}
 
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
+
 		err := myCanal.RunFrom(pos)
 		if err != nil {
 			log.Errorf("run canal err: %s", err)
@@ -95,7 +98,10 @@ func startCanal() {
 }
 
 func sendLatestPost(id uint64, url string) {
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Hour)
 		defer cancel()
 
@@ -107,6 +113,13 @@ func sendLatestPost(id uint64, url string) {
 
 		msg := tbi.NewMessage(0, url)
 		for _, v := range uf.UserFeeds {
+			select {
+			case <-stop:
+				log.Infof("stop send latest post")
+				return
+			default:
+			}
+
 			msg.ChatID = v.TelegramID
 			_, err = client.Send(msg)
 			if err != nil {

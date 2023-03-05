@@ -39,12 +39,18 @@ func start() {
 		timer := time.NewTimer(startDelay)
 		defer timer.Stop()
 
+		// 延迟启动
 		<-timer.C
 		for {
 			updateFeedTitle()
 
 			timer.Reset(updateInterval)
-			<-timer.C
+			select {
+			case <-stop:
+				close(stopped)
+				return
+			case <-timer.C:
+			}
 		}
 	}()
 }
@@ -70,7 +76,6 @@ func updateFeedTitle() {
 		select {
 		case <-stop:
 			log.Infof("stop update feed title")
-			close(stopped)
 			return
 		default:
 		}

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	tbi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -15,6 +16,9 @@ import (
 )
 
 var (
+	stop = make(chan int)
+	wg   = &sync.WaitGroup{}
+
 	client *tbi.BotAPI
 	server *http.Server
 )
@@ -87,7 +91,10 @@ func startWebhook() {
 	updates := client.ListenForWebhook(webhookPath)
 	handlers(updates)
 
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
+
 		err := server.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("listen and server webhook err: %s", err)
@@ -96,6 +103,8 @@ func startWebhook() {
 }
 
 func Stop() {
+	close(stop)
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
@@ -105,4 +114,5 @@ func Stop() {
 	}
 
 	myCanal.Close()
+	wg.Wait()
 }
