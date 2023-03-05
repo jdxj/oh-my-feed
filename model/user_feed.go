@@ -5,6 +5,8 @@ import (
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+
+	"github.com/jdxj/oh-my-feed/validator"
 )
 
 type UserFeed struct {
@@ -15,6 +17,11 @@ type UserFeed struct {
 }
 
 func AddUserFeed(ctx context.Context, telegramID int64, address string) error {
+	address, err := validator.ValidateFeed(ctx, address)
+	if err != nil {
+		return err
+	}
+
 	return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		err := AddUser(tx, telegramID)
 		if err != nil {

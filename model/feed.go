@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -20,12 +19,6 @@ type Feed struct {
 }
 
 func AddFeed(tx *gorm.DB, address string) (uint64, error) {
-	address = strings.TrimSuffix(address, "/")
-	err := myValidator.Var(address, "url")
-	if err != nil {
-		return 0, err
-	}
-
 	sum := md5.Sum([]byte(address))
 	sumStr := hex.EncodeToString(sum[:])
 
