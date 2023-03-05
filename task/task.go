@@ -80,7 +80,6 @@ func updateFeedTitle() {
 		default:
 		}
 
-		// todo: 协程池
 		latestTitle, err := getLatestPost(ctx, feed.Address)
 		if err != nil {
 			log.Desugar().Warn(

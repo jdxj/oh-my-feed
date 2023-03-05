@@ -87,7 +87,6 @@ func startWebhook() {
 		}
 	}
 
-	// todo: 1. 删除命令 2. 注册命令
 	updates := client.ListenForWebhook(webhookPath)
 	handlers(updates)
 
