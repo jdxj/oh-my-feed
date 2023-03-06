@@ -63,6 +63,7 @@ func (hdl *myEventHandler) OnRow(e *canal.RowsEvent) error {
 	return nil
 }
 
+// todo: 应该抽出到一个包里
 func startCanal() {
 	cfg := canal.NewDefaultConfig()
 	cfg.Addr = fmt.Sprintf("%s:%d", config.DB.Address, config.DB.Port)

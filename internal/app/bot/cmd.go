@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -87,6 +88,14 @@ func handlers(updates tbi.UpdatesChannel) {
 
 		// todo: update并发测试
 		for update := range updates {
+			// todo: 用于调试, 应该删除
+			data, err := json.MarshalIndent(update, "", "  ")
+			if err != nil {
+				log.Errorf("marshal update err: %s", err)
+			} else {
+				log.Debugf("marshaled update: %s", data)
+			}
+
 			select {
 			case <-stop:
 				log.Infof("stop handle update")
