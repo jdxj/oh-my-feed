@@ -1,6 +1,7 @@
-package model
+package db
 
 import (
+	"context"
 	"fmt"
 
 	"gorm.io/driver/mysql"
@@ -24,6 +25,10 @@ func Init() {
 	}
 }
 
-func setDebug() {
+func WithContext(ctx context.Context) *gorm.DB {
+	return db.WithContext(ctx)
+}
+
+func Debug() {
 	db = db.Debug()
 }

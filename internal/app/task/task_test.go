@@ -5,15 +5,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jdxj/oh-my-feed/internal/app/model"
 	"github.com/jdxj/oh-my-feed/internal/pkg/config"
+	"github.com/jdxj/oh-my-feed/internal/pkg/db"
 	"github.com/jdxj/oh-my-feed/internal/pkg/log"
 )
 
 func TestMain(t *testing.M) {
 	config.Init("../config/config.yaml")
 	log.Init()
-	model.Init()
+	db.Init()
 
 	os.Exit(t.Run())
 }

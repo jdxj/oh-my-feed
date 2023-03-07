@@ -10,25 +10,26 @@ import (
 	"github.com/mmcdole/gofeed"
 
 	"github.com/jdxj/oh-my-feed/internal/pkg/config"
+	"github.com/jdxj/oh-my-feed/internal/pkg/db"
 )
 
 func TestMain(t *testing.M) {
 	config.Init("../config/config.yaml")
-	Init()
+	db.Init()
 
-	setDebug()
+	db.Debug()
 	os.Exit(t.Run())
 }
 
 func TestAddFeed(t *testing.T) {
-	_, err := AddFeed(db, "")
+	_, err := AddFeed(db.WithContext(context.Background()), "")
 	if err != nil {
 		t.Fatalf("ii: %s\n", err)
 	}
 }
 
 func TestGetFeed(t *testing.T) {
-	feed, err := GetFeed(db, 16)
+	feed, err := GetFeed(db.WithContext(context.Background()), 16)
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}

@@ -7,9 +7,9 @@ import (
 	"syscall"
 
 	"github.com/jdxj/oh-my-feed/internal/app/bot"
-	"github.com/jdxj/oh-my-feed/internal/app/model"
 	"github.com/jdxj/oh-my-feed/internal/app/task"
 	"github.com/jdxj/oh-my-feed/internal/pkg/config"
+	"github.com/jdxj/oh-my-feed/internal/pkg/db"
 	"github.com/jdxj/oh-my-feed/internal/pkg/log"
 )
 
@@ -22,7 +22,7 @@ func main() {
 
 	config.Init(*configPath)
 	log.Init()
-	model.Init()
+	db.Init()
 	task.Init()
 	bot.Init()
 	log.Infof("started")

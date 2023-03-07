@@ -87,6 +87,7 @@ func handlers(updates tbi.UpdatesChannel) {
 		defer wg.Done()
 
 		// todo: update并发测试
+		// todo: 使用协程池, 否则可能出现前一个阻塞后来的
 		for update := range updates {
 			// todo: 用于调试, 应该删除
 			data, err := json.MarshalIndent(update, "", "  ")
@@ -103,6 +104,7 @@ func handlers(updates tbi.UpdatesChannel) {
 			default:
 			}
 
+			// todo: 不合理的判断, 应该结合上下文
 			if update.Message != nil {
 				txt := update.Message.Text
 				cli, err := parseCmdLine(txt)
