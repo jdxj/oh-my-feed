@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/jdxj/oh-my-feed/internal/pkg/db"
-	"github.com/jdxj/oh-my-feed/pkg/validator"
+	"github.com/jdxj/oh-my-feed/internal/pkg/validator"
 )
 
 type UserFeed struct {
@@ -34,12 +34,34 @@ func AddUserFeed(ctx context.Context, telegramID int64, address string) error {
 			return err
 		}
 
-		return tx.Clauses(clause.OnConflict{DoNothing: true}).
+		return tx.Clauses(clause.OnConflict{
+			DoUpdates: clause.Assignments(map[string]any{
+				"deleted_at": nil,
+			}),
+		}).
 			Create(&UserFeed{
 				TelegramID: telegramID,
 				FeedID:     feedID,
 			}).Error
 	})
+}
+
+func DelUserFeed(ctx context.Context, telegramID int64, address string) error {
+	address, err := validator.ValidateFeedWithoutParse(address)
+	if err != nil {
+		return err
+	}
+
+	feed, err := GetFeedByAddress(ctx, address)
+	if err != nil {
+		return err
+	}
+
+	return db.WithContext(ctx).
+		Where("telegram_id = ?", telegramID).
+		Where("feed_id = ?", feed.ID).
+		Delete(&UserFeed{}).
+		Error
 }
 
 type ListUserFeedReq struct {

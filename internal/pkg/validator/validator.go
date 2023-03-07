@@ -3,6 +3,7 @@ package validator
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/mmcdole/gofeed"
@@ -20,6 +21,14 @@ func ValidateFeed(ctx context.Context, address string) (string, error) {
 		return "", err
 	}
 
+	ctx, cancel := context.WithTimeout(ctx, time.Second*30)
+	defer cancel()
+
 	_, err = feedValidator.ParseURLWithContext(address, ctx)
 	return address, err
+}
+
+func ValidateFeedWithoutParse(address string) (string, error) {
+	address = strings.TrimSuffix(address, "/")
+	return address, varValidator.Var(address, "url")
 }

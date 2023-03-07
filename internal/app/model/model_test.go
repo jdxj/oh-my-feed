@@ -11,10 +11,12 @@ import (
 
 	"github.com/jdxj/oh-my-feed/internal/pkg/config"
 	"github.com/jdxj/oh-my-feed/internal/pkg/db"
+	"github.com/jdxj/oh-my-feed/internal/pkg/log"
 )
 
 func TestMain(t *testing.M) {
-	config.Init("../config/config.yaml")
+	config.Init("./config.yaml")
+	log.Init()
 	db.Init()
 
 	db.Debug()
@@ -37,7 +39,14 @@ func TestGetFeed(t *testing.T) {
 }
 
 func TestAddUserFeed(t *testing.T) {
-	err := AddUserFeed(context.Background(), 456, "ggg")
+	err := AddUserFeed(context.Background(), 0, "")
+	if err != nil {
+		t.Fatalf("%s\n", err)
+	}
+}
+
+func TestDelUserFeed(t *testing.T) {
+	err := DelUserFeed(context.Background(), 0, "")
 	if err != nil {
 		t.Fatalf("%s\n", err)
 	}

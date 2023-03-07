@@ -43,6 +43,16 @@ func GetFeed(tx *gorm.DB, id uint64) (Feed, error) {
 	return feed, tx.Take(&feed).Error
 }
 
+func GetFeedByAddress(ctx context.Context, address string) (Feed, error) {
+	sum := md5.Sum([]byte(address))
+	sumStr := hex.EncodeToString(sum[:])
+
+	feed := Feed{}
+	return feed, db.WithContext(ctx).
+		Where("address_md5 = ?", sumStr).
+		Take(&feed).Error
+}
+
 func GetFeeds(ctx context.Context) ([]Feed, error) {
 	var feeds []Feed
 	return feeds, db.WithContext(ctx).

@@ -9,6 +9,7 @@ import (
 
 	tbi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 
 	"github.com/jdxj/oh-my-feed/internal/app/model"
 	"github.com/jdxj/oh-my-feed/internal/pkg/log"
@@ -19,6 +20,7 @@ var (
 		newHelloCmd(),
 		newTestInlineKeyboardCmd(),
 		newSubscribeCmd(),
+		newUnsubscribeCmd(),
 	}
 
 	cmdSlice = func() []tbi.BotCommand {
@@ -231,9 +233,39 @@ func newSubscribeCmd() *command {
 					zap.String("feed", args[0]),
 					zap.Error(err),
 				)
-				msg.Text = "添加订阅地址失败"
+				msg.Text = "订阅失败"
 			} else {
-				msg.Text = "添加订阅地址成功"
+				msg.Text = "订阅成功"
+			}
+			msg.ReplyToMessageID = update.Message.MessageID
+			return msg
+		},
+	}
+}
+
+func newUnsubscribeCmd() *command {
+	return &command{
+		name:        "unsubscribe",
+		description: "退订",
+		h: func(args []string, update tbi.Update) tbi.Chattable {
+			chatID := update.Message.Chat.ID
+			msg := tbi.NewMessage(chatID, "")
+
+			if len(args) == 0 {
+				msg.Text = "需要指定一个订阅地址"
+				return msg
+			}
+
+			err := model.DelUserFeed(context.TODO(), chatID, args[0])
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					msg.Text = "没有该订阅"
+				} else {
+					log.Errorf("del user feed err: %s", err)
+					msg.Text = "退订失败"
+				}
+			} else {
+				msg.Text = "退订成功"
 			}
 			msg.ReplyToMessageID = update.Message.MessageID
 			return msg
