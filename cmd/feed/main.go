@@ -6,11 +6,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/jdxj/oh-my-feed/bot"
-	"github.com/jdxj/oh-my-feed/config"
-	"github.com/jdxj/oh-my-feed/log"
-	"github.com/jdxj/oh-my-feed/model"
-	"github.com/jdxj/oh-my-feed/task"
+	"github.com/jdxj/oh-my-feed/internal/app/bot"
+	"github.com/jdxj/oh-my-feed/internal/app/model"
+	"github.com/jdxj/oh-my-feed/internal/app/task"
+	"github.com/jdxj/oh-my-feed/internal/pkg/config"
+	"github.com/jdxj/oh-my-feed/internal/pkg/log"
 )
 
 var (

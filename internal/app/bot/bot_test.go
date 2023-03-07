@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jdxj/oh-my-feed/config"
-	"github.com/jdxj/oh-my-feed/log"
-	"github.com/jdxj/oh-my-feed/model"
+	"github.com/jdxj/oh-my-feed/internal/app/model"
+	"github.com/jdxj/oh-my-feed/internal/pkg/config"
+	"github.com/jdxj/oh-my-feed/internal/pkg/log"
 )
 
 func TestChan(t *testing.T) {

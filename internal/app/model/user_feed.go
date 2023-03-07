@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/jdxj/oh-my-feed/validator"
+	"github.com/jdxj/oh-my-feed/pkg/validator"
 )
 
 type UserFeed struct {

@@ -11,8 +11,8 @@ import (
 	tbi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 
-	"github.com/jdxj/oh-my-feed/config"
-	"github.com/jdxj/oh-my-feed/log"
+	"github.com/jdxj/oh-my-feed/internal/pkg/config"
+	"github.com/jdxj/oh-my-feed/internal/pkg/log"
 )
 
 var (

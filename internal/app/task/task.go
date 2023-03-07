@@ -8,8 +8,8 @@ import (
 	"github.com/mmcdole/gofeed"
 	"go.uber.org/zap"
 
-	"github.com/jdxj/oh-my-feed/log"
-	"github.com/jdxj/oh-my-feed/model"
+	"github.com/jdxj/oh-my-feed/internal/app/model"
+	"github.com/jdxj/oh-my-feed/internal/pkg/log"
 )
 
 var (

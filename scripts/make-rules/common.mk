@@ -1,4 +1,4 @@
-DOCKER := docker
+DOCKER := deployments/docker
 OUTPUT := output
 
 DOCKER_TAG := jdxj/oh-my-feed:test-$(shell git rev-parse --short HEAD)

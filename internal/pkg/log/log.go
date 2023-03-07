@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 
-	"github.com/jdxj/oh-my-feed/config"
+	"github.com/jdxj/oh-my-feed/internal/pkg/config"
 )
 
 var (

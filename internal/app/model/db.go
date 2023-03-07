@@ -6,8 +6,8 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
-	"github.com/jdxj/oh-my-feed/config"
-	"github.com/jdxj/oh-my-feed/log"
+	"github.com/jdxj/oh-my-feed/internal/pkg/config"
+	"github.com/jdxj/oh-my-feed/internal/pkg/log"
 )
 
 var (

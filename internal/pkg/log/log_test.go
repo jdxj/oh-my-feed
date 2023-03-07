@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jdxj/oh-my-feed/config"
+	"github.com/jdxj/oh-my-feed/internal/pkg/config"
 )
 
 func TestMain(t *testing.M) {
