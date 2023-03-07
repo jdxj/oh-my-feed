@@ -17,7 +17,7 @@ var (
 	commands = []*command{
 		newHelloCmd(),
 		newTestInlineKeyboardCmd(),
-		newAddFeedCmd(),
+		newSubscribeCmd(),
 	}
 
 	cmdSlice = func() []tbi.BotCommand {
@@ -200,10 +200,10 @@ func testInlineKeyboard(args []string, update tbi.Update) tbi.Chattable {
 	return msg
 }
 
-func newAddFeedCmd() *command {
+func newSubscribeCmd() *command {
 	return &command{
-		name:        "addfeed",
-		description: "添加订阅",
+		name:        "subscribe",
+		description: "订阅",
 		h: func(args []string, update tbi.Update) tbi.Chattable {
 			chatID := update.Message.Chat.ID
 			msg := tbi.NewMessage(chatID, "")
