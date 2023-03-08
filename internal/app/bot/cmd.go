@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"runtime/debug"
 	"strings"
 
 	tbi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -73,6 +74,7 @@ func registerCmd() {
 		setCmdReq := tbi.NewSetMyCommandsWithScope(scope, cmd...)
 		setCmdRsp, err := client.Request(setCmdReq)
 		if err != nil {
+			log.Desugar().Error("set my cmd stack", zap.String("cmd-stack", string(debug.Stack())))
 			log.Fatalf("request set commands err: %s", err)
 		}
 		if !setCmdRsp.Ok {
