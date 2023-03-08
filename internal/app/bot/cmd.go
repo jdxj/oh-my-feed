@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"runtime/debug"
 	"strings"
 
 	tbi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -18,45 +17,46 @@ import (
 	"github.com/jdxj/oh-my-feed/internal/pkg/log"
 )
 
+type (
+	handler func(args []string, update tbi.Update) tbi.Chattable
+	command struct {
+		bc  tbi.BotCommand
+		bcs tbi.BotCommandScope
+		h   handler
+	}
+)
+
 var (
-	commands = []*command{
+	cmdMap map[string]*command
+)
+
+func initCmd() {
+	commands := []*command{
 		newHelloCmd(),
 		newSubscribeCmd(),
 		newUnsubscribeCmd(),
 		newIntervalCmd(),
 	}
 
-	cmdGroup = func() map[tbi.BotCommandScope][]tbi.BotCommand {
-		cg := make(map[tbi.BotCommandScope][]tbi.BotCommand)
-		for _, v := range commands {
-			cg[v.bcs] = append(cg[v.bcs], v.bc)
+	cmdGroup := make(map[tbi.BotCommandScope][]tbi.BotCommand)
+	for _, v := range commands {
+		cmdGroup[v.bcs] = append(cmdGroup[v.bcs], v.bc)
+	}
+
+	cmdMap = make(map[string]*command)
+	for _, v := range commands {
+		_, ok := cmdMap[v.bc.Command]
+		if ok {
+			log.Fatalf("duplicated: %s", v.bc.Command)
+		} else {
+			cmdMap[v.bc.Command] = v
 		}
-		return cg
-	}()
+	}
 
-	cmdMap = func() map[string]*command {
-		m := make(map[string]*command)
-		for _, v := range commands {
-			_, ok := m[v.bc.Command]
-			if ok {
-				log.Fatalf("duplicated: %s", v.bc.Command)
-			} else {
-				m[v.bc.Command] = v
-			}
-		}
-		return m
-	}()
-)
-
-type handler func(args []string, update tbi.Update) tbi.Chattable
-
-type command struct {
-	bc  tbi.BotCommand
-	bcs tbi.BotCommandScope
-	h   handler
+	registerCmd(cmdGroup)
 }
 
-func registerCmd() {
+func registerCmd(cmdGroup map[tbi.BotCommandScope][]tbi.BotCommand) {
 	deleteCmdReq := tbi.NewDeleteMyCommands()
 	deleteCmdRsp, err := client.Request(deleteCmdReq)
 	if err != nil {
@@ -74,7 +74,6 @@ func registerCmd() {
 		setCmdReq := tbi.NewSetMyCommandsWithScope(scope, cmd...)
 		setCmdRsp, err := client.Request(setCmdReq)
 		if err != nil {
-			log.Desugar().Error("set my cmd stack", zap.String("cmd-stack", string(debug.Stack())))
 			log.Fatalf("request set commands err: %s", err)
 		}
 		if !setCmdRsp.Ok {

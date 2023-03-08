@@ -3,6 +3,7 @@ package bot
 import (
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -11,6 +12,14 @@ import (
 	"github.com/jdxj/oh-my-feed/internal/pkg/db"
 	"github.com/jdxj/oh-my-feed/internal/pkg/log"
 )
+
+func TestMain(t *testing.M) {
+	config.Init("./config.yaml")
+	log.Init()
+	Init()
+
+	os.Exit(t.Run())
+}
 
 func TestChan(t *testing.T) {
 	c := make(chan int, 1)

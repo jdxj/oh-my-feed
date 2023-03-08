@@ -39,7 +39,7 @@ func Init() {
 		log.Fatalf("new pool err: %s", err)
 	}
 
-	registerCmd()
+	initCmd()
 	startWebhook()
 	startCanal()
 }
