@@ -13,6 +13,7 @@ import (
 
 	"github.com/jdxj/oh-my-feed/internal/app/model"
 	"github.com/jdxj/oh-my-feed/internal/app/task"
+	"github.com/jdxj/oh-my-feed/internal/pkg/config"
 	"github.com/jdxj/oh-my-feed/internal/pkg/log"
 )
 
@@ -267,7 +268,7 @@ func newIntervalCmd() *command {
 			Command:     "interval",
 			Description: "更新间隔",
 		},
-		bcs: tbi.NewBotCommandScopeAllChatAdministrators(),
+		bcs: tbi.NewBotCommandScopeChat(config.Telegram.Owner),
 		h: func(args []string, update tbi.Update) tbi.Chattable {
 			chatID := update.Message.Chat.ID
 			msg := tbi.NewMessage(chatID, "")

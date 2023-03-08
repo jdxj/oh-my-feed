@@ -17,6 +17,7 @@ type db struct {
 type telegram struct {
 	Token   string `yaml:"token"`
 	Webhook string `yaml:"webhook"`
+	Owner   int64  `yaml:"owner"`
 }
 
 type logger struct {
