@@ -3,7 +3,6 @@ package bot
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/go-mysql-org/go-mysql/canal"
 	"github.com/go-mysql-org/go-mysql/replication"
@@ -103,16 +102,12 @@ func sendLatestPost(id uint64, url string) {
 	go func() {
 		defer wg.Done()
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Hour)
-		defer cancel()
-
-		uf, err := model.ListUserFeed(ctx, model.ListUserFeedReq{FeedID: id})
+		uf, err := model.ListUserFeed(context.TODO(), model.ListUserFeedReq{FeedID: id})
 		if err != nil {
 			log.Errorf("list user feed err: %s", err)
 			return
 		}
 
-		msg := tbi.NewMessage(0, url)
 		for _, v := range uf.UserFeeds {
 			select {
 			case <-stop:
@@ -121,11 +116,14 @@ func sendLatestPost(id uint64, url string) {
 			default:
 			}
 
-			msg.ChatID = v.TelegramID
-			_, err = client.Send(msg)
-			if err != nil {
-				log.Errorf("send latest post err: %s", err)
-			}
+			chatID := v.TelegramID
+			_ = gp.Submit(func() {
+				msg := tbi.NewMessage(chatID, url)
+				_, err = client.Send(msg)
+				if err != nil {
+					log.Errorf("send latest post err: %s", err)
+				}
+			})
 		}
 	}()
 }

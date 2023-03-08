@@ -88,8 +88,6 @@ func handlers(updates tbi.UpdatesChannel) {
 	go func() {
 		defer wg.Done()
 
-		// todo: update并发测试
-		// todo: 使用协程池, 否则可能出现前一个阻塞后来的
 		for update := range updates {
 			// todo: 用于调试, 应该删除
 			data, err := json.MarshalIndent(update, "", "  ")
@@ -102,32 +100,37 @@ func handlers(updates tbi.UpdatesChannel) {
 			select {
 			case <-stop:
 				log.Infof("stop handle update")
+				// todo: 打印剩余的update?
 				return
 			default:
 			}
 
-			// todo: 不合理的判断, 应该结合上下文
-			if update.Message != nil {
-				txt := update.Message.Text
-				cli, err := parseCmdLine(txt)
-				if err != nil {
-					switch {
-					case errors.Is(err, ErrNotCmd):
-						log.Infof("receive msg: %s", txt)
-					case errors.Is(err, ErrCmdNotFound):
-						log.Warnf("not register cmd: %s", txt)
-					default:
-						log.Errorf("parse cmdline err: %s", err)
+			update := update
+			// todo: 测试 submit 同时close
+			_ = gp.Submit(func() {
+				// todo: 不合理的判断, 应该结合上下文
+				if update.Message != nil {
+					txt := update.Message.Text
+					cli, err := parseCmdLine(txt)
+					if err != nil {
+						switch {
+						case errors.Is(err, ErrNotCmd):
+							log.Infof("receive msg: %s", txt)
+						case errors.Is(err, ErrCmdNotFound):
+							log.Warnf("not register cmd: %s", txt)
+						default:
+							log.Errorf("parse cmdline err: %s", err)
+						}
+						return
 					}
-					continue
-				}
 
-				msg := cli.cmd.h(cli.args, update)
-				_, err = client.Send(msg)
-				if err != nil {
-					log.Warnf("send msg err: %s", err)
+					msg := cli.cmd.h(cli.args, update)
+					_, err = client.Send(msg)
+					if err != nil {
+						log.Warnf("send msg err: %s", err)
+					}
 				}
-			}
+			})
 		}
 
 		log.Infof("quit range updates")

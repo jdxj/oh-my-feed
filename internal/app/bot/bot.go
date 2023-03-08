@@ -9,6 +9,7 @@ import (
 	"time"
 
 	tbi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/panjf2000/ants/v2"
 	"go.uber.org/zap"
 
 	"github.com/jdxj/oh-my-feed/internal/pkg/config"
@@ -21,6 +22,7 @@ var (
 
 	client *tbi.BotAPI
 	server *http.Server
+	gp     *ants.Pool
 )
 
 func Init() {
@@ -28,6 +30,13 @@ func Init() {
 	client, err = tbi.NewBotAPI(config.Telegram.Token)
 	if err != nil {
 		log.Fatalf("new bot api err: %s", err)
+	}
+
+	gp, err = ants.NewPool(100, ants.WithNonblocking(false), ants.WithPanicHandler(func(i interface{}) {
+		log.Desugar().Error("gp-panic", zap.Any("panic", i))
+	}))
+	if err != nil {
+		log.Fatalf("new pool err: %s", err)
 	}
 
 	registerCmd()
@@ -110,6 +119,11 @@ func Stop() {
 	err := server.Shutdown(ctx)
 	if err != nil {
 		log.Errorf("stop bot err: %s", err)
+	}
+
+	err = gp.ReleaseTimeout(time.Second * 10)
+	if err != nil {
+		log.Errorf("stop gp err: %s", err)
 	}
 
 	myCanal.Close()
