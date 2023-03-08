@@ -12,36 +12,34 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/jdxj/oh-my-feed/internal/app/model"
+	"github.com/jdxj/oh-my-feed/internal/app/task"
 	"github.com/jdxj/oh-my-feed/internal/pkg/log"
 )
 
 var (
 	commands = []*command{
 		newHelloCmd(),
-		newTestInlineKeyboardCmd(),
 		newSubscribeCmd(),
 		newUnsubscribeCmd(),
+		newIntervalCmd(),
 	}
 
-	cmdSlice = func() []tbi.BotCommand {
-		var bcs []tbi.BotCommand
+	cmdGroup = func() map[tbi.BotCommandScope][]tbi.BotCommand {
+		cg := make(map[tbi.BotCommandScope][]tbi.BotCommand)
 		for _, v := range commands {
-			bcs = append(bcs, tbi.BotCommand{
-				Command:     v.name,
-				Description: v.description,
-			})
+			cg[v.bcs] = append(cg[v.bcs], v.bc)
 		}
-		return bcs
+		return cg
 	}()
 
 	cmdMap = func() map[string]*command {
 		m := make(map[string]*command)
 		for _, v := range commands {
-			_, ok := m[v.name]
+			_, ok := m[v.bc.Command]
 			if ok {
-				log.Fatalf("duplicated: %s", v.name)
+				log.Fatalf("duplicated: %s", v.bc.Command)
 			} else {
-				m[v.name] = v
+				m[v.bc.Command] = v
 			}
 		}
 		return m
@@ -51,9 +49,9 @@ var (
 type handler func(args []string, update tbi.Update) tbi.Chattable
 
 type command struct {
-	name        string
-	description string
-	h           handler
+	bc  tbi.BotCommand
+	bcs tbi.BotCommandScope
+	h   handler
 }
 
 func registerCmd() {
@@ -70,16 +68,18 @@ func registerCmd() {
 		}
 	}
 
-	setCmdReq := tbi.NewSetMyCommands(cmdSlice...)
-	setCmdRsp, err := client.Request(setCmdReq)
-	if err != nil {
-		log.Fatalf("request set commands err: %s", err)
-	}
-	if !setCmdRsp.Ok {
-		log.Desugar().Fatal(
-			"set-cmd",
-			zap.String("description", setCmdRsp.Description),
-		)
+	for scope, cmd := range cmdGroup {
+		setCmdReq := tbi.NewSetMyCommandsWithScope(scope, cmd...)
+		setCmdRsp, err := client.Request(setCmdReq)
+		if err != nil {
+			log.Fatalf("request set commands err: %s", err)
+		}
+		if !setCmdRsp.Ok {
+			log.Desugar().Fatal(
+				"set-cmd",
+				zap.String("description", setCmdRsp.Description),
+			)
+		}
 	}
 }
 
@@ -180,8 +180,11 @@ func parseCmdLine(str string) (*cmdLine, error) {
 
 func newHelloCmd() *command {
 	return &command{
-		name:        "hello",
-		description: "say hello",
+		bc: tbi.BotCommand{
+			Command:     "hello",
+			Description: "say hello",
+		},
+		bcs: tbi.NewBotCommandScopeDefault(),
 		h: func(args []string, update tbi.Update) tbi.Chattable {
 			txt := "world"
 			if len(args) > 0 {
@@ -192,34 +195,13 @@ func newHelloCmd() *command {
 	}
 }
 
-func newTestInlineKeyboardCmd() *command {
-	return &command{
-		name:        "test_inline_keyboard",
-		description: "测试",
-		h:           testInlineKeyboard,
-	}
-}
-
-func testInlineKeyboard(args []string, update tbi.Update) tbi.Chattable {
-	row1 := tbi.NewInlineKeyboardRow(
-		tbi.NewInlineKeyboardButtonData("abc", "123"),
-		tbi.NewInlineKeyboardButtonData("def", "456"),
-	)
-	row2 := tbi.NewInlineKeyboardRow(
-		tbi.NewInlineKeyboardButtonData("cba", "321"),
-		tbi.NewInlineKeyboardButtonData("fed", "654"),
-	)
-	inlineKeyboard := tbi.NewInlineKeyboardMarkup(row1, row2)
-
-	msg := tbi.NewMessage(update.Message.Chat.ID, "hhh")
-	msg.ReplyMarkup = inlineKeyboard
-	return msg
-}
-
 func newSubscribeCmd() *command {
 	return &command{
-		name:        "subscribe",
-		description: "订阅",
+		bc: tbi.BotCommand{
+			Command:     "subscribe",
+			Description: "订阅",
+		},
+		bcs: tbi.NewBotCommandScopeDefault(),
 		h: func(args []string, update tbi.Update) tbi.Chattable {
 			chatID := update.Message.Chat.ID
 			msg := tbi.NewMessage(chatID, "")
@@ -248,8 +230,11 @@ func newSubscribeCmd() *command {
 
 func newUnsubscribeCmd() *command {
 	return &command{
-		name:        "unsubscribe",
-		description: "退订",
+		bc: tbi.BotCommand{
+			Command:     "unsubscribe",
+			Description: "退订",
+		},
+		bcs: tbi.NewBotCommandScopeDefault(),
 		h: func(args []string, update tbi.Update) tbi.Chattable {
 			chatID := update.Message.Chat.ID
 			msg := tbi.NewMessage(chatID, "")
@@ -269,6 +254,39 @@ func newUnsubscribeCmd() *command {
 				}
 			} else {
 				msg.Text = "退订成功"
+			}
+			msg.ReplyToMessageID = update.Message.MessageID
+			return msg
+		},
+	}
+}
+
+func newIntervalCmd() *command {
+	return &command{
+		bc: tbi.BotCommand{
+			Command:     "interval",
+			Description: "更新间隔",
+		},
+		bcs: tbi.NewBotCommandScopeAllChatAdministrators(),
+		h: func(args []string, update tbi.Update) tbi.Chattable {
+			chatID := update.Message.Chat.ID
+			msg := tbi.NewMessage(chatID, "")
+
+			if len(args) == 0 {
+				msg.Text = "需要指定一个延时 e.g., 1h, 10m"
+				return msg
+			}
+
+			err := task.SetInterval(args[0])
+			if err != nil {
+				if errors.Is(err, task.ErrIntervalTooSmall) {
+					msg.Text = "间隔过小"
+				} else {
+					log.Errorf("set interval err: %s", err)
+					msg.Text = "更新间隔失败"
+				}
+			} else {
+				msg.Text = "更新间隔成功"
 			}
 			msg.ReplyToMessageID = update.Message.MessageID
 			return msg

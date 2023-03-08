@@ -119,3 +119,19 @@ func getLatestPost(ctx context.Context, address string) (string, error) {
 
 	return feed.Items[0].Link, nil
 }
+
+var (
+	ErrIntervalTooSmall = errors.New("interval too small")
+)
+
+func SetInterval(dur string) error {
+	d, err := time.ParseDuration(dur)
+	if err != nil {
+		return err
+	}
+	if d < time.Minute*10 {
+		return ErrIntervalTooSmall
+	}
+	updateInterval = d
+	return nil
+}
