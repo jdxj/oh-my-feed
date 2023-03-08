@@ -20,9 +20,9 @@ import (
 type (
 	handler func(args []string, update tbi.Update) tbi.Chattable
 	command struct {
-		bc  tbi.BotCommand
-		bcs tbi.BotCommandScope
-		h   handler
+		botCmd       tbi.BotCommand
+		botCmdScopes []tbi.BotCommandScope
+		h            handler
 	}
 )
 
@@ -39,17 +39,19 @@ func initCmd() {
 	}
 
 	cmdGroup := make(map[tbi.BotCommandScope][]tbi.BotCommand)
-	for _, v := range commands {
-		cmdGroup[v.bcs] = append(cmdGroup[v.bcs], v.bc)
+	for _, cmd := range commands {
+		for _, scope := range cmd.botCmdScopes {
+			cmdGroup[scope] = append(cmdGroup[scope], cmd.botCmd)
+		}
 	}
 
 	cmdMap = make(map[string]*command)
 	for _, v := range commands {
-		_, ok := cmdMap[v.bc.Command]
+		_, ok := cmdMap[v.botCmd.Command]
 		if ok {
-			log.Fatalf("duplicated: %s", v.bc.Command)
+			log.Fatalf("duplicated: %s", v.botCmd.Command)
 		} else {
-			cmdMap[v.bc.Command] = v
+			cmdMap[v.botCmd.Command] = v
 		}
 	}
 
@@ -182,11 +184,14 @@ func parseCmdLine(str string) (*cmdLine, error) {
 
 func newHelloCmd() *command {
 	return &command{
-		bc: tbi.BotCommand{
+		botCmd: tbi.BotCommand{
 			Command:     "hello",
 			Description: "say hello",
 		},
-		bcs: tbi.NewBotCommandScopeDefault(),
+		botCmdScopes: []tbi.BotCommandScope{
+			tbi.NewBotCommandScopeChat(config.Telegram.Owner),
+			tbi.NewBotCommandScopeDefault(),
+		},
 		h: func(args []string, update tbi.Update) tbi.Chattable {
 			txt := "world"
 			if len(args) > 0 {
@@ -199,11 +204,14 @@ func newHelloCmd() *command {
 
 func newSubscribeCmd() *command {
 	return &command{
-		bc: tbi.BotCommand{
+		botCmd: tbi.BotCommand{
 			Command:     "subscribe",
 			Description: "订阅",
 		},
-		bcs: tbi.NewBotCommandScopeDefault(),
+		botCmdScopes: []tbi.BotCommandScope{
+			tbi.NewBotCommandScopeChat(config.Telegram.Owner),
+			tbi.NewBotCommandScopeDefault(),
+		},
 		h: func(args []string, update tbi.Update) tbi.Chattable {
 			chatID := update.Message.Chat.ID
 			msg := tbi.NewMessage(chatID, "")
@@ -232,11 +240,14 @@ func newSubscribeCmd() *command {
 
 func newUnsubscribeCmd() *command {
 	return &command{
-		bc: tbi.BotCommand{
+		botCmd: tbi.BotCommand{
 			Command:     "unsubscribe",
 			Description: "退订",
 		},
-		bcs: tbi.NewBotCommandScopeDefault(),
+		botCmdScopes: []tbi.BotCommandScope{
+			tbi.NewBotCommandScopeChat(config.Telegram.Owner),
+			tbi.NewBotCommandScopeDefault(),
+		},
 		h: func(args []string, update tbi.Update) tbi.Chattable {
 			chatID := update.Message.Chat.ID
 			msg := tbi.NewMessage(chatID, "")
@@ -265,11 +276,13 @@ func newUnsubscribeCmd() *command {
 
 func newIntervalCmd() *command {
 	return &command{
-		bc: tbi.BotCommand{
+		botCmd: tbi.BotCommand{
 			Command:     "interval",
 			Description: "更新间隔",
 		},
-		bcs: tbi.NewBotCommandScopeChat(config.Telegram.Owner),
+		botCmdScopes: []tbi.BotCommandScope{
+			tbi.NewBotCommandScopeChat(config.Telegram.Owner),
+		},
 		h: func(args []string, update tbi.Update) tbi.Chattable {
 			chatID := update.Message.Chat.ID
 			msg := tbi.NewMessage(chatID, "")
