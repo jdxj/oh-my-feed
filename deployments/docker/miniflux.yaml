@@ -1,0 +1,17 @@
+version: "3.9"
+networks:
+  study-docker-compose_my_net:
+    external: true
+services:
+  miniflux:
+    image: miniflux/miniflux:latest
+    environment:
+      - DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASS@172.18.0.5:5432/miniflux?sslmode=disable
+      - RUN_MIGRATIONS=1
+      - CREATE_ADMIN=1
+      - ADMIN_USERNAME=$MINIFLUX_USER
+      - ADMIN_PASSWORD=$MINIFLUX_PASS
+    restart: unless-stopped
+    networks:
+      study-docker-compose_my_net:
+        ipv4_address: 172.18.0.23
